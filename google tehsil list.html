@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fetch States, Districts, and Tehsils</title>
+  <script>
+    // Your Google Maps API Key
+    const API_KEY = "AIzaSyDLxtyx9MBInIPTcL1FYyuKCbH9YDSwNj0";
+
+    // Fetch states
+    async function getStates() {
+      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=state&types=geocode&components=country:IN&key=${API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const states = data.predictions.map((place) => place.description);
+      populateDropdown('stateSelect', states);
+    }
+
+    // Fetch districts
+    async function getDistricts() {
+      const state = document.getElementById('stateSelect').value;
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=districts+in+${state}&key=${API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const districts = data.results.map((result) => result.name);
+      populateDropdown('districtSelect', districts);
+    }
+
+    // Fetch tehsils
+    async function getTehsils() {
+      const district = document.getElementById('districtSelect').value;
+      const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=tehsils+in+${district}&key=${API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const tehsils = data.results.map((result) => result.name);
+      populateDropdown('tehsilSelect', tehsils);
+    }
+
+    // Populate dropdown
+    function populateDropdown(elementId, items) {
+      const dropdown = document.getElementById(elementId);
+      dropdown.innerHTML = ''; // Clear existing options
+      items.forEach((item) => {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        dropdown.appendChild(option);
+      });
+    }
+
+    // Initialize states on page load
+    window.onload = () => {
+      getStates();
+    };
+  </script>
+</head>
+<body>
+  <h1>Fetch States, Districts, and Tehsils</h1>
+
+  <label for="stateSelect">State:</label>
+  <select id="stateSelect" onchange="getDistricts()">
+    <option value="">Select State</option>
+  </select>
+
+  <label for="districtSelect">District:</label>
+  <select id="districtSelect" onchange="getTehsils()">
+    <option value="">Select District</option>
+  </select>
+
+  <label for="tehsilSelect">Tehsil:</label>
+  <select id="tehsilSelect">
+    <option value="">Select Tehsil</option>
+  </select>
+</body>
+</html>
